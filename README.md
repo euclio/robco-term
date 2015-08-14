@@ -13,7 +13,7 @@ This program requires an installation of stable [Rust][rust-official] and
 [cargo], and [ncurses].
 
 If you can't get rust or cargo from your friendly neighborhood package manager,
-try this script from the [official site][rust official]:
+try this script from the [official site][rust-install]:
 
 ```sh
 $ curl -sSf https://static.rust-lang.org/rustup.sh | sh
@@ -92,7 +92,7 @@ Options:
 * This program is in no way meant to be an exact replica of the game. That said,
   I'd love any pull requests that improve the authenticity.
 * As of this writing, cool-retro-term does not support xterm-1003 mouse mode
-  (cool-retro-term#251). robco-term will still work, but highlighting on
+  ([cool-retro-term#251]). robco-term will still work, but highlighting on
   hover will not.
 
 ## TODO
@@ -107,8 +107,10 @@ clear. I made this as a labor of love, not to make any money!
 
 [homebrew]: http://brew.sh/
 [rust-official]: https://www.rust-lang.org/
+[rust-install]: https://www.rust-lang.org/install.html
 [cargo]: https://crates.io
 [ncurses]: http://www.gnu.org/software/ncurses/
 [hacking mini-game]: http://fallout.wikia.com/wiki/Hacking#Hacking_terminals
 [cool-retro-term]: https://github.com/Swordfish90/cool-retro-term
+[cool-retro-term#251]: https://github.com/Swordfish90/cool-retro-term/issues/251
 [ADM-3A]: https://en.wikipedia.org/wiki/ADM-3A
