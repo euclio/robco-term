@@ -59,7 +59,8 @@ $ brew install rust ncurses
 ## Linux (Ubuntu)
 
 ```sh
-$ sudo apt-get install libncurses-dev
+$ sudo apt-get update
+$ sudo apt-get install libncurses{,w}5-dev
 ```
 
 ### Running the Code
