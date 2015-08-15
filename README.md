@@ -48,7 +48,7 @@ $ curl -sSf https://static.rust-lang.org/rustup.sh | sh
 
 Then, to install ncurses:
 
-## OS X
+#### OS X
 
 First, install [homebrew]. Then, open a terminal.
 
@@ -56,7 +56,7 @@ First, install [homebrew]. Then, open a terminal.
 $ brew install rust ncurses
 ```
 
-## Linux (Ubuntu)
+#### Linux (Ubuntu)
 
 ```sh
 $ sudo apt-get update
