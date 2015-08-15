@@ -72,6 +72,10 @@ $ cargo run --release
 I recommend running the game in [cool-retro-term] to feel like you're
 actually getting your Science skill to 100.
 
+```sh
+$ cool-retro-term -e cargo run --release
+```
+
 ## Playing the game
 
 A full description of how to play the hacking game can be found
