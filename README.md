@@ -7,7 +7,34 @@ Vegas written in Rust using ncurses.
 
 ## Installation
 
-### Dependencies
+First, clone the repository.
+
+```sh
+$ git clone https://github.com/euclio/robco-term.git
+```
+
+OS X and Linux users have the choice between a native install and Vagrant (I
+recommend native). Windows users must use Vagrant.
+
+### Vagrant
+
+If you don't want to bother installing dependencies, you can try running the
+game inside a Vagrant environment. The environment also provides
+[cool-retro-term].
+
+First, install [Vagrant] and [VirtualBox]. Then, open a terminal or command
+prompt inside the robco-term folder.
+
+```sh
+$ vagrant up
+```
+
+This will open a virtual machine and begin provisioning a simple Ubuntu
+environment. The game will be ready to play when you see "Robco Terminal" on the
+VM's desktop. Please note that this will take about 15 minutes and download
+about 4GB on the first run. You can track progress in your terminal.
+
+### Native
 
 This program requires an installation of stable [Rust][rust-official] and
 [cargo], and [ncurses].
@@ -35,19 +62,7 @@ $ brew install rust ncurses
 $ sudo apt-get install libncurses-dev
 ```
 
-#### Note
-Since ncurses is a UNIX library, there is currently no Windows support. Sorry!
-
 ### Running the Code
-
-First, clone the repository.
-
-```sh
-$ git clone https://github.com/euclio/robco-term.git
-```
-
-Then, `cd` into the cloned directory and run the release version of the binary.
-This will download all dependencies automatically.
 
 ```sh
 $ cargo run --release
@@ -105,6 +120,8 @@ Options:
 I'm not affiliated with Bethesda, Zenimax, or Obsidian in any way, just to be
 clear. I made this as a labor of love, not to make any money!
 
+[VirtualBox]: https://www.virtualbox.org/
+[Vagrant]: https://www.vagrantup.com/
 [homebrew]: http://brew.sh/
 [rust-official]: https://www.rust-lang.org/
 [rust-install]: https://www.rust-lang.org/install.html
