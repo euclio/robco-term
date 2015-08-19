@@ -39,8 +39,8 @@ about 4GB on the first run. You can track progress in your terminal.
 This program requires an installation of stable [Rust][rust-official] and
 [cargo], and [ncurses].
 
-If you can't get rust or cargo from your friendly neighborhood package manager,
-try this script from the [official site][rust-install]:
+If you can't get rust or cargo from your friendly neighborhood package manager
+such as apt or homebrew, try this script from the [official site][rust-install]:
 
 ```sh
 $ curl -sSf https://static.rust-lang.org/rustup.sh | sh
@@ -53,8 +53,13 @@ Then, to install ncurses:
 First, install [homebrew]. Then, open a terminal.
 
 ```sh
-$ brew install rust ncurses
+$ brew install homebrew/dupes/ncurses
 ```
+
+Note: The standard OS X terminal doesn't support mouse events. You can still
+play the game using the keyboard, but if you want to use the mouse you can
+use [iTerm2] or [cool-retro-term], both of which can be installed through
+homebrew (as `iterm2` and `Caskroom/cask/cool-retro-term`, respectively).
 
 #### Linux (Ubuntu)
 
@@ -136,3 +141,4 @@ clear. I made this as a labor of love, not to make any money!
 [cool-retro-term]: https://github.com/Swordfish90/cool-retro-term
 [cool-retro-term#251]: https://github.com/Swordfish90/cool-retro-term/issues/251
 [ADM-3A]: https://en.wikipedia.org/wiki/ADM-3A
+[iterm2]: https://www.iterm2.com/
