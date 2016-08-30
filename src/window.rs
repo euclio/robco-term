@@ -78,10 +78,10 @@ impl Window for NCursesWindow {
         const KEY_ESC: i32 = 27;
         const KEY_ENTER: i32 = '\n' as i32;
         match ch as i32 {
-            KEY_LEFT | KEY_A | KEY_H => { Some(InputEvent::Left) }
-            KEY_RIGHT | KEY_D | KEY_L => { Some(InputEvent::Right) },
-            KEY_UP | KEY_W | KEY_K => { Some(InputEvent::Up) },
-            KEY_DOWN | KEY_S | KEY_J => { Some(InputEvent::Down) },
+            KEY_LEFT | KEY_A | KEY_H => Some(InputEvent::Left),
+            KEY_RIGHT | KEY_D | KEY_L => Some(InputEvent::Right),
+            KEY_UP | KEY_W | KEY_K => Some(InputEvent::Up),
+            KEY_DOWN | KEY_S | KEY_J => Some(InputEvent::Down),
             KEY_MOUSE => {
                 let mut event: MEVENT = unsafe { mem::uninitialized() };
                 assert!(getmouse(&mut event) == OK);
@@ -92,10 +92,10 @@ impl Window for NCursesWindow {
                 } else {
                     None
                 }
-            },
+            }
             KEY_ENTER => Some(InputEvent::Action),
             KEY_ESC => Some(InputEvent::Quit),
-            _ => None
+            _ => None,
         }
     }
 
@@ -113,22 +113,28 @@ impl Window for NCursesWindow {
                     let reader = BufReader::new(File::open("resources/vault_boy.txt").unwrap());
                     let mut line_counter = 0;
                     for line in reader.lines().map(|l| l.unwrap()) {
-                        mvprintw(line_counter as i32, 0,
+                        mvprintw(line_counter as i32,
+                                 0,
                                  &format!("{:^1$}", line, WINDOW_WIDTH as usize));
                         line_counter += 1;
                     }
-                    mvprintw(line_counter as i32, 0,
+                    mvprintw(line_counter as i32,
+                             0,
                              &format!("{:^1$}", "ACCESS GRANTED", WINDOW_WIDTH as usize));
-                },
+                }
                 GameEnding::Lost => {
                     curs_set(CURSOR_VISIBILITY::CURSOR_INVISIBLE);
-                    mvprintw((starting_line + ROWS) / 2, 0,
+                    mvprintw((starting_line + ROWS) / 2,
+                             0,
                              &format!("{:^1$}", "TERMINAL LOCKED", WINDOW_WIDTH as usize));
-                    mvprintw((starting_line + ROWS + 1) / 2, 0,
-                             &format!("{:^1$}", "PLEASE CONTACT AN ADMINISTRATOR", WINDOW_WIDTH as usize));
+                    mvprintw((starting_line + ROWS + 1) / 2,
+                             0,
+                             &format!("{:^1$}",
+                                      "PLEASE CONTACT AN ADMINISTRATOR",
+                                      WINDOW_WIDTH as usize));
                 }
             }
-            return
+            return;
         }
 
         // Print information at top
@@ -140,8 +146,11 @@ impl Window for NCursesWindow {
         let visual_attempts = repeat("█")
             .take(game_state.attempts as usize)
             .join(" ");
-        mvprintw(MARGIN + 3, MARGIN,
-                 &format!("{} ATTEMPT(S) LEFT: {}", game_state.attempts, visual_attempts));
+        mvprintw(MARGIN + 3,
+                 MARGIN,
+                 &format!("{} ATTEMPT(S) LEFT: {}",
+                          game_state.attempts,
+                          visual_attempts));
 
         // Draw random addresses and word columns
         let highlight_positions = match game_state.get_entity_at_cursor() {
@@ -156,20 +165,22 @@ impl Window for NCursesWindow {
                 } else {
                     None
                 }
-            },
-            None => None
+            }
+            None => None,
         };
 
         // Draw both columns
         for (column_index, column) in game_state.columns.iter().enumerate() {
             let word_data: Vec<char> = column.render_word_data().chars().collect::<Vec<char>>();
             let word_chunks = word_data.chunks(WORD_COLUMN_WIDTH as usize);
-            for (line, (address, word_chunk)) in column.addresses.iter()
-                                                                   .zip(word_chunks.into_iter())
-                                                                   .enumerate() {
+            for (line, (address, word_chunk)) in column.addresses
+                .iter()
+                .zip(word_chunks.into_iter())
+                .enumerate() {
                 let row = starting_line + line as i32;
                 let col = MARGIN + column_index as i32 * (COLUMN_WIDTH + COLUMN_PADDING);
-                let hex_address: String = format!("{:#01$X}", address, ADDRESS_COLUMN_WIDTH as usize);
+                let hex_address: String =
+                    format!("{:#01$X}", address, ADDRESS_COLUMN_WIDTH as usize);
                 let word_row: String = word_chunk.iter().map(|&c| c).collect::<String>();
 
                 mvprintw(row, col, &(hex_address + " "));
@@ -236,8 +247,8 @@ impl Window for NCursesWindow {
                 Some(..) => {
                     let (x, y) = game_state.cursor_position;
                     char::from_u32(mvinch(y, x) as u32).unwrap().to_string()
-                },
-                None => "".to_string()
+                }
+                None => "".to_string(),
             }
         };
 
@@ -261,33 +272,26 @@ impl Window for NCursesWindow {
 
             match *entry {
                 Entry::Incorrect { num_correct, ref word } => {
-                    mvprintw_checked(entries_row, col, &[
-                                     &format!(">{}", word.to_ascii_uppercase()),
-                                     ">Entry denied",
-                                     &format!(">{}/{} correct.", num_correct, 7)
-                    ]);
-                },
+                    mvprintw_checked(entries_row,
+                                     col,
+                                     &[&format!(">{}", word.to_ascii_uppercase()),
+                                       ">Entry denied",
+                                       &format!(">{}/{} correct.", num_correct, 7)]);
+                }
                 Entry::Correct { ref word } => {
-                    mvprintw_checked(entries_row, col, &[
-                                     &format!(">{}", word.to_ascii_uppercase()),
-                                     ">Exact match!",
-                                     ">Please wait",
-                                     ">while system",
-                                     ">is accessed."
-                    ]);
+                    mvprintw_checked(entries_row,
+                                     col,
+                                     &[&format!(">{}", word.to_ascii_uppercase()),
+                                       ">Exact match!",
+                                       ">Please wait",
+                                       ">while system",
+                                       ">is accessed."]);
                 }
                 Entry::DudRemoval => {
-                    mvprintw_checked(entries_row, col, &[
-                                      ">",
-                                      ">Dud removed."
-                    ]);
-                },
+                    mvprintw_checked(entries_row, col, &[">", ">Dud removed."]);
+                }
                 Entry::AllowanceReplenish => {
-                    mvprintw_checked(entries_row, col, &[
-                                      ">",
-                                      ">Allowance",
-                                      ">replenished."
-                    ]);
+                    mvprintw_checked(entries_row, col, &[">", ">Allowance", ">replenished."]);
                 }
             }
 

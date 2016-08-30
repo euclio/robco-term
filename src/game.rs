@@ -6,26 +6,29 @@ use std::io::prelude::*;
 use ::itertools::Itertools;
 use ::rand::{self, Rng};
 use ::rand::distributions::{IndependentSample, Range};
-use ::time::{Duration};
+use ::time::Duration;
 
 use ::consts::*;
 
 pub enum InputEvent {
-    Up, Down, Left, Right,
+    Up,
+    Down,
+    Left,
+    Right,
     Action,
-    Quit
+    Quit,
 }
 
 pub enum Entry {
     Correct {
-        word: String
+        word: String,
     },
     Incorrect {
         word: String,
-        num_correct: i32
+        num_correct: i32,
     },
     DudRemoval,
-    AllowanceReplenish
+    AllowanceReplenish,
 }
 
 impl Entry {
@@ -35,7 +38,7 @@ impl Entry {
             Correct { .. } => 5,
             Incorrect { .. } => 3,
             DudRemoval => 2,
-            AllowanceReplenish => 3
+            AllowanceReplenish => 3,
         }
     }
 }
@@ -46,7 +49,7 @@ pub enum CursorEntity {
         word: String,
         guessed: bool,
         index: usize,
-        removed: bool
+        removed: bool,
     },
     Brackets {
         pair: (char, char),
@@ -58,15 +61,15 @@ pub enum CursorEntity {
 impl CursorEntity {
     pub fn indices(&self) -> (usize, usize) {
         match *self {
-            CursorEntity::Word { ref word, index, ..} => (index, index + word.len()),
-            CursorEntity::Brackets { indices, ..} => (indices.0, indices.1 + 1),
+            CursorEntity::Word { ref word, index, .. } => (index, index + word.len()),
+            CursorEntity::Brackets { indices, .. } => (indices.0, indices.1 + 1),
         }
     }
 
     pub fn highlighted(&self) -> bool {
         match *self {
             CursorEntity::Word { guessed, .. } => !guessed,
-            CursorEntity::Brackets { consumed, .. } => !consumed
+            CursorEntity::Brackets { consumed, .. } => !consumed,
         }
     }
 }
@@ -83,7 +86,7 @@ pub struct GameState {
     pub is_playing: bool,
     pub correct_word: String,
     pub entries: Vec<Entry>,
-    pub status: Option<GameEnding>
+    pub status: Option<GameEnding>,
 }
 
 impl GameState {
@@ -108,19 +111,20 @@ impl GameState {
 
         // Check that the cursor is actually inside one of the columns.
         if y < COLUMN_START_ROW || y > COLUMN_END_ROW {
-            return None
+            return None;
         }
 
         let left_col_start = MARGIN + ADDRESS_COLUMN_WIDTH + INNER_COLUMN_PADDING;
         let left_col_end = left_col_start + WORD_COLUMN_WIDTH;
-        let right_col_start = left_col_end + COLUMN_PADDING + ADDRESS_COLUMN_WIDTH + INNER_COLUMN_PADDING;
+        let right_col_start = left_col_end + COLUMN_PADDING + ADDRESS_COLUMN_WIDTH +
+                              INNER_COLUMN_PADDING;
         let right_col_end = right_col_start + COLUMN_WIDTH;
 
         // Check if it's in the column we asked for.
         if left_col_start <= x && x < left_col_end {
-            return Some(0)
+            return Some(0);
         } else if right_col_start <= x && x < right_col_end {
-            return Some(1)
+            return Some(1);
         }
 
         None
@@ -131,7 +135,8 @@ impl GameState {
 
         let left_col_start = MARGIN + ADDRESS_COLUMN_WIDTH + INNER_COLUMN_PADDING;
         let left_col_end = left_col_start + WORD_COLUMN_WIDTH;
-        let right_col_start = left_col_end + COLUMN_PADDING + ADDRESS_COLUMN_WIDTH + INNER_COLUMN_PADDING;
+        let right_col_start = left_col_end + COLUMN_PADDING + ADDRESS_COLUMN_WIDTH +
+                              INNER_COLUMN_PADDING;
 
         if let Some(column_index) = self.get_cursor_column_index() {
             // We know that the cursor is inside a column. Now we need to determine where it is in
@@ -159,24 +164,24 @@ impl GameState {
             for entity in &self.columns[column_index].entities {
                 let (start, end) = entity.indices();
                 match *entity {
-                    CursorEntity::Word { removed, .. }=> {
-                        if start  <= index && index < end  {
+                    CursorEntity::Word { removed, .. } => {
+                        if start <= index && index < end {
                             if !removed {
                                 return Some(entity);
                             } else {
                                 return None;
                             }
                         }
-                    },
+                    }
                     CursorEntity::Brackets { consumed, .. } => {
-                        if start  == index {
+                        if start == index {
                             if !consumed {
                                 return Some(entity);
                             } else {
                                 return None;
                             }
                         }
-                    },
+                    }
                 }
             }
         }
@@ -186,17 +191,17 @@ impl GameState {
     fn get_entity_at_cursor_mut(&mut self) -> Option<&mut CursorEntity> {
         if let Some(cursor_position) = self.column_coordinates() {
             let (column_index, index) = cursor_position as (usize, usize);
-            for entity in &mut self.columns[column_index ].entities {
+            for entity in &mut self.columns[column_index].entities {
                 let (start, end) = entity.indices();
                 match *entity {
-                    CursorEntity::Word { .. }=> {
+                    CursorEntity::Word { .. } => {
                         if start <= index && index < end {
-                            return Some(entity)
+                            return Some(entity);
                         }
-                    },
+                    }
                     CursorEntity::Brackets { .. } => {
                         if start == index {
-                            return Some(entity)
+                            return Some(entity);
                         }
                     }
                 }
@@ -216,14 +221,10 @@ impl GameState {
         let num_words = 12;
         let words = GameState::generate_words(num_words, word_length);
 
-        let left_column =
-            Column::new(
-                addresses.by_ref().take(ROWS as usize).collect(),
-                &words[..words.len() / 2]);
-        let right_column =
-            Column::new(
-                addresses.take(ROWS as usize).collect(),
-                &words[words.len() / 2..]);
+        let left_column = Column::new(addresses.by_ref().take(ROWS as usize).collect(),
+                                      &words[..words.len() / 2]);
+        let right_column = Column::new(addresses.take(ROWS as usize).collect(),
+                                       &words[words.len() / 2..]);
 
         let mut words = left_column.words();
         words.extend(right_column.words());
@@ -236,23 +237,25 @@ impl GameState {
             correct_word: correct_word.clone(),
             is_playing: true,
             entries: vec![],
-            status: None
+            status: None,
         }
     }
 
     fn generate_words(num_words: i32, length: usize) -> Vec<String> {
         let dict = File::open("/usr/share/dict/words").unwrap();
-        let words = BufReader::new(dict).lines()
-                                    .map(|word| word.unwrap())
-                                    .filter(|word| word.chars().count() == length)
-                                    .filter(|word| word.is_ascii())
-                                    .filter(|word| word.chars().next().unwrap().is_lowercase())
-                                    .filter(|word| word.chars().all(|c: char| c.is_alphabetic()));
+        let words = BufReader::new(dict)
+            .lines()
+            .map(|word| word.unwrap())
+            .filter(|word| word.chars().count() == length)
+            .filter(|word| word.is_ascii())
+            .filter(|word| word.chars().next().unwrap().is_lowercase())
+            .filter(|word| word.chars().all(|c: char| c.is_alphabetic()));
 
         let mut rng = rand::thread_rng();
-        rand::sample(&mut rng, words, num_words as usize).iter()
-                    .map(|s| s.clone())
-                    .collect()
+        rand::sample(&mut rng, words, num_words as usize)
+            .iter()
+            .map(|s| s.clone())
+            .collect()
     }
 
 
@@ -276,10 +279,10 @@ impl GameState {
                 CursorEntity::Word { ref word, ref mut removed, .. } => {
                     if *word != self.correct_word && !*removed {
                         *removed = true;
-                        return
+                        return;
                     }
                 }
-                _ => continue
+                _ => continue,
             }
         }
     }
@@ -288,8 +291,8 @@ impl GameState {
         match *self.get_entity_at_cursor_mut().unwrap() {
             CursorEntity::Brackets { ref mut consumed, .. } => {
                 *consumed = true;
-            },
-            _ => panic!("expected brackets to be under cursor")
+            }
+            _ => panic!("expected brackets to be under cursor"),
         }
 
         let mut rng = rand::thread_rng();
@@ -308,8 +311,8 @@ impl GameState {
         match *self.get_entity_at_cursor_mut().unwrap() {
             CursorEntity::Word { ref mut guessed, .. } => {
                 *guessed = true;
-            },
-            _ => panic!("expected word to be under cursor")
+            }
+            _ => panic!("expected word to be under cursor"),
         }
 
         if word == self.correct_word {
@@ -317,13 +320,13 @@ impl GameState {
             self.status = Some(GameEnding::Won);
         } else {
             let num_correct = word.chars()
-                                      .enumerate()
-                                      .filter(|&(i, c)| {
-                                          c == self.correct_word.chars().nth(i).unwrap()
-                                      })
-                                      .count();
-            self.entries.push(
-                Entry::Incorrect { word: word.to_string(), num_correct: num_correct as i32 });
+                .enumerate()
+                .filter(|&(i, c)| c == self.correct_word.chars().nth(i).unwrap())
+                .count();
+            self.entries.push(Entry::Incorrect {
+                word: word.to_string(),
+                num_correct: num_correct as i32,
+            });
             if self.attempts == 0 {
                 self.status = Some(GameEnding::Lost);
             }
@@ -334,18 +337,21 @@ impl GameState {
 pub struct Column {
     pub addresses: Vec<u16>,
     word_data: [char; CHARACTERS_PER_COLUMN as usize],
-    entities: Vec<CursorEntity>
+    entities: Vec<CursorEntity>,
 }
 
 impl Column {
     fn words(&self) -> Vec<String> {
-        self.entities.iter().filter_map(|e| {
-            let e = e.clone();
-            match e {
-                CursorEntity::Word { word, .. } => Some(word),
-                _ => None
-            }
-        }).collect()
+        self.entities
+            .iter()
+            .filter_map(|e| {
+                let e = e.clone();
+                match e {
+                    CursorEntity::Word { word, .. } => Some(word),
+                    _ => None,
+                }
+            })
+            .collect()
     }
 
     pub fn render_word_data(&self) -> String {
@@ -355,8 +361,8 @@ impl Column {
             match *entity {
                 CursorEntity::Word { ref word, guessed, index, removed, .. } => {
                     for (char_index, character) in word.to_ascii_uppercase()
-                                                   .chars()
-                                                   .enumerate() {
+                        .chars()
+                        .enumerate() {
                         let char_position: usize = index + char_index;
                         data[char_position] = if !guessed && !removed {
                             character
@@ -364,7 +370,7 @@ impl Column {
                             '.'
                         };
                     }
-                },
+                }
                 CursorEntity::Brackets { pair, indices, consumed, .. } => {
                     let (l_index, r_index) = indices;
                     if !consumed {
@@ -385,23 +391,23 @@ impl Column {
 
     fn new(addresses: Vec<u16>, words: &[String]) -> Column {
         let word_length = words.iter().next().unwrap().len();
-        let word_entities =
-            words.iter()
-                .enumerate()
-                .map(|(index, word)| {
-                    let mut rng = rand::thread_rng();
-                    let chars_available = CHARACTERS_PER_COLUMN as usize / words.len();
-                    let offset: usize = rng.gen_range(0, chars_available - word_length);
-                    CursorEntity::Word {
-                        word: word.to_string(),
-                        guessed: false,
-                        index: index * chars_available + offset,
-                        removed: false
-                    }})
-                .collect::<Vec<CursorEntity>>();
+        let word_entities = words.iter()
+            .enumerate()
+            .map(|(index, word)| {
+                let mut rng = rand::thread_rng();
+                let chars_available = CHARACTERS_PER_COLUMN as usize / words.len();
+                let offset: usize = rng.gen_range(0, chars_available - word_length);
+                CursorEntity::Word {
+                    word: word.to_string(),
+                    guessed: false,
+                    index: index * chars_available + offset,
+                    removed: false,
+                }
+            })
+            .collect::<Vec<CursorEntity>>();
 
         let brackets = Column::generate_brackets(8, &word_entities);
-        let mut entities = vec!();
+        let mut entities = vec![];
 
         entities.extend(brackets);
         entities.extend(word_entities);
@@ -434,28 +440,28 @@ impl Column {
         const PAIRS: [(char, char); 4] = [('<', '>'), ('[', ']'), ('{', '}'), ('(', ')')];
 
         let bracket_length = 8;
-        let valid_indices =
-            (0..CHARACTERS_PER_COLUMN as usize).filter(
-                |&i| {
-                    words.into_iter()
-                         .all(|word| {
-                             let (start, end) = word.indices();
-                             if i < start {
-                                 i + bracket_length < start
-                             } else {
-                                 i > end && i + bracket_length < CHARACTERS_PER_COLUMN as usize
-                             }
-                         })
-                });
+        let valid_indices = (0..CHARACTERS_PER_COLUMN as usize).filter(|&i| {
+            words.into_iter()
+                .all(|word| {
+                    let (start, end) = word.indices();
+                    if i < start {
+                        i + bracket_length < start
+                    } else {
+                        i > end && i + bracket_length < CHARACTERS_PER_COLUMN as usize
+                    }
+                })
+        });
         let mut rng = rand::thread_rng();
         let range = Range::new(0, PAIRS.len());
-        rand::sample(&mut rng, valid_indices, num_brackets as usize).iter()
-                    .map(|&index| {
-                        CursorEntity::Brackets {
-                            pair: PAIRS[range.ind_sample(&mut rng)],
-                            indices: (index, index + bracket_length),
-                            consumed: false
-                        }
-                    }).collect::<Vec<CursorEntity>>()
+        rand::sample(&mut rng, valid_indices, num_brackets as usize)
+            .iter()
+            .map(|&index| {
+                CursorEntity::Brackets {
+                    pair: PAIRS[range.ind_sample(&mut rng)],
+                    indices: (index, index + bracket_length),
+                    consumed: false,
+                }
+            })
+            .collect::<Vec<CursorEntity>>()
     }
 }
