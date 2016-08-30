@@ -378,7 +378,7 @@ impl Column {
                         data[l_index] = l_bracket;
                         data[r_index] = r_bracket;
                     } else {
-                        for index in (l_index..r_index) {
+                        for index in l_index..r_index {
                             data[index] = '.';
                         }
                     }

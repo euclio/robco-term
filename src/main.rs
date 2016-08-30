@@ -16,7 +16,6 @@ use docopt::Docopt;
 use time::PreciseTime;
 
 use game::{GameState, InputEvent};
-use window::Window;
 
 static USAGE: &'static str = "
 Usage:

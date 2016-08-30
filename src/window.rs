@@ -43,7 +43,7 @@ impl NCursesWindow {
         mousemask(mouse_events as u64, None);
         mouseinterval(0);
 
-        if has_mouse() == TRUE {
+        if has_mouse() {
             info!("Mouse driver initialized.")
         } else {
             info!("Error initializing mouse driver.");
