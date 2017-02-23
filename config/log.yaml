@@ -1,0 +1,7 @@
+appenders:
+  logging:
+    kind: file
+    path: "log/robco-terminal.log"
+
+root:
+  level: debug

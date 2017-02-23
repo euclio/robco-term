@@ -35,12 +35,12 @@ impl NCursesWindow {
         raw();
 
         // Extended keyboard and mouse events.
-        keypad(stdscr, true);
-        nodelay(stdscr, true);
+        keypad(stdscr(), true);
+        nodelay(stdscr(), true);
         noecho();
 
         let mouse_events = ALL_MOUSE_EVENTS | REPORT_MOUSE_POSITION;
-        mousemask(mouse_events as u64, None);
+        mousemask(mouse_events as u32, None);
         mouseinterval(0);
 
         if has_mouse() {
@@ -87,7 +87,7 @@ impl Window for NCursesWindow {
                 assert!(getmouse(&mut event) == OK);
 
                 game_state.cursor_position = (event.x, event.y);
-                if (event.bstate & BUTTON1_PRESSED as u64) != 0 {
+                if event.bstate & (BUTTON1_PRESSED as u32) != 0 {
                     Some(InputEvent::Action)
                 } else {
                     None
@@ -140,7 +140,7 @@ impl Window for NCursesWindow {
         // Print information at top
         mvprintw(MARGIN, MARGIN, "ROBCO INDUSTRIES (TM) TERMLINK PROTOCOL");
         mvprintw(MARGIN + 1, MARGIN, "ENTER PASSWORD NOW");
-        mvprintw(LINES - 1, 0, "Press Esc to exit");
+        mvprintw(LINES() - 1, 0, "Press Esc to exit");
 
         // Print attempts remaining
         let visual_attempts = repeat("█")
@@ -204,7 +204,7 @@ impl Window for NCursesWindow {
                             if i == end_x {
                                 attroff(A_STANDOUT());
                             }
-                            addch(c as u64);
+                            addch(c as u32);
                         }
                     } else if start_y == line {
                         for (i, c) in word_row.chars().enumerate() {
@@ -212,7 +212,7 @@ impl Window for NCursesWindow {
                             if i == start_x {
                                 attron(A_STANDOUT());
                             }
-                            addch(c as u64);
+                            addch(c as u32);
                         }
                         attroff(A_STANDOUT());
                     } else if end_y == line {
@@ -222,7 +222,7 @@ impl Window for NCursesWindow {
                             if i == end_x {
                                 attroff(A_STANDOUT());
                             }
-                            addch(c as u64);
+                            addch(c as u32);
                         }
                     } else {
                         addstr(&word_row);
